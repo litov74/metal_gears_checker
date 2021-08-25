@@ -2,7 +2,7 @@
 
 an open-source software to detect issues with metal tools/gears. Based on TF library. to launch it pass all datasets to folder -> launch neural.py
 
-##Requirements
+## Requirements
 
 absl-py==0.13.0
 aiogram==2.9.2
