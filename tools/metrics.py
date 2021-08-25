@@ -1,6 +1,7 @@
 import tensorflow as tf
 from _pytest.monkeypatch import K
 from keras.losses import binary_crossentropy
+from matplotlib import pyplot as plt
 
 from tools.data_generator import DataGenerator
 from tools.unet import train2
@@ -56,4 +57,11 @@ idx = int(0.8*len(train2)); print()
 train_batches = DataGenerator(train2.iloc[:idx],shuffle=True, preprocess = preprocess)
 valid_batches = DataGenerator(train2.iloc[idx:],preprocess=preprocess)
 history = model.fit_generator(train_batches, validation_data=valid_batches, epochs=30, verbose = 2)
+
+# PLOT TRAINING
+plt.figure(figsize=(15,5))
+plt.plot(range(history.epoch[-1]+1),history.history['val_dice_coef'],label='val_dice_coef')
+plt.plot(range(history.epoch[-1]+1),history.history['dice_coef'],label='trn_dice_coef')
+plt.title('Training Accuracy'); plt.xlabel('Epoch'); plt.ylabel('Dice_coef');plt.legend();
+plt.show()
 
