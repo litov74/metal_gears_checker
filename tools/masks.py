@@ -5,28 +5,29 @@ from tqdm import tqdm
 
 from neural import train_df, train_path
 
-palet = [(249, 192, 12), (0, 185, 241), (114, 0, 218), (249,50,12)]
+palet = [(249, 192, 12), (0, 185, 241), (114, 0, 218), (249, 50, 12)]
 
 
 def name_and_mask(start_idx):
     col = start_idx
-    img_names = [str(i).split("_")[0] for i in train_df.iloc[col:col+4, 0].values]
+    img_names = [str(i).split("_")[0] for i in train_df.iloc[col:col + 4, 0].values]
     if not (img_names[0] == img_names[1] == img_names[2] == img_names[3]):
         raise ValueError
 
-    labels = train_df.iloc[col:col+4, 1]
+    labels = train_df.iloc[col:col + 4, 1]
     mask = np.zeros((256, 1600, 4), dtype=np.uint8)
 
     for idx, label in enumerate(labels.values):
         if label is not np.nan:
-            mask_label = np.zeros(1600*256, dtype=np.uint8)
+            mask_label = np.zeros(1600 * 256, dtype=np.uint8)
             label = label.split(" ")
             positions = map(int, label[0::2])
             length = map(int, label[1::2])
             for pos, le in zip(positions, length):
-                mask_label[pos:(pos+le)] = 1
+                mask_label[pos:(pos + le)] = 1
             mask[:, :, idx] = mask_label.reshape(256, 1600, order='F')
     return img_names[0], mask
+
 
 def show_mask_image(col):
     name, mask = name_and_mask(col)
@@ -41,11 +42,12 @@ def show_mask_image(col):
     ax.imshow(img)
     plt.show()
 
+
 fig, ax = plt.subplots(1, 4, figsize=(15, 5))
 for i in range(4):
     ax[i].axis('off')
     ax[i].imshow(np.ones((50, 50, 3), dtype=np.uint8) * palet[i])
-    ax[i].set_title("class color: {}".format(i+1))
+    ax[i].set_title("class color: {}".format(i + 1))
 fig.suptitle("each class colors")
 
 plt.show()
@@ -105,12 +107,12 @@ for col in tqdm(range(0, len(train_df), 4)):
     if (mask.sum(axis=2) >= 2).any():
         show_mask_image(idx)
 
-train_df = train_df[ train_df['EncodedPixels'].notnull() ]
-print( train_df.shape )
+train_df = train_df[train_df['EncodedPixels'].notnull()]
+print(train_df.shape)
 train_df.head()
 
-train_df = train_df[ train_df['EncodedPixels'].notnull() ]
-print( train_df.shape )
+train_df = train_df[train_df['EncodedPixels'].notnull()]
+print(train_df.shape)
 train_df.head()
 
 
@@ -146,4 +148,3 @@ for i in range(1, 100 + 1):
 
     plt.imshow(img)
 plt.show()
-
