@@ -1,19 +1,20 @@
-#GLOBAL LIBRARIES
-import logging
+# GLOBAL LIBRARIES
 
-import pandas as pd
 import os
-import matplotlib.pyplot as plt
-from PIL import Image
-import seaborn as sns
 from collections import defaultdict
 from pathlib import Path
+from sys import path
 
-#LOCAL PROJECT LIBRARIES
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+from PIL import Image
+
+# LOCAL PROJECT LIBRARIES
 from strings import *
-
-
-#CONFIG
+# CONFIG
+from tools.data_generator import DataGenerator
+from tools.metrics import dice_coef, preprocess
 
 pd.set_option("display.max_rows", 101)
 plt.rcParams["font.size"] = 15
@@ -21,7 +22,7 @@ train_df = pd.read_csv("input/train.csv")
 sample_df = pd.read_csv("input/sample_submission.csv")
 train_df.head()
 print(f'{directory_structure}\n{os.listdir("input")}')
-#END CONFIG
+# END CONFIG
 
 
 class_dict = defaultdict(int)
@@ -48,7 +49,8 @@ for col in range(0, len(train_df), 4):
         if label == False:
             class_dict[idx + 1] += 1
 
-print("the number of images with no defects: {}".format(no_defects_num)) # the output should be "the number of images with no defects: N the number of images with defects: Nn"
+print("the number of images with no defects: {}".format(
+    no_defects_num))  # the output should be "the number of images with no defects: N the number of images with defects: Nn"
 print("the number of images with defects: {}".format(defects_num))
 
 fig, ax = plt.subplots()
@@ -56,7 +58,6 @@ sns.barplot(x=list(class_dict.keys()), y=list(class_dict.values()), ax=ax)
 ax.set_title("the number of images for each class")
 ax.set_xlabel("class")
 print(class_dict)
-
 
 fig, ax = plt.subplots()
 sns.barplot(x=list(kind_class_dict.keys()), y=list(kind_class_dict.values()), ax=ax)
@@ -72,7 +73,6 @@ for img_name in train_path.iterdir():
     train_size_dict[img.size] += 1
 print(train_size_dict)
 
-
 test_size_dict = defaultdict(int)
 test_path = Path("input/test_images/")
 
@@ -82,3 +82,18 @@ for img_name in test_path.iterdir():
 
 print(test_size_dict)
 
+from tools.metrics import model
+
+# SAVE MODEL
+model.save('UNET.h5')
+
+# LOAD MODEL
+from keras.models import load_model
+
+model = load_model('UNET.h5', custom_objects={'dice_coef': dice_coef})
+
+# PREDICT 1 BATCH TEST DATASET
+test = pd.read_csv(path + 'sample_submission.csv')
+test['ImageId'] = test['ImageId_ClassId'].map(lambda x: x.split('_')[0])
+test_batches = DataGenerator(test.iloc[::4], subset='test', batch_size=256, preprocess=preprocess)
+test_preds = model.predict_generator(test_batches, steps=1, verbose=1)
