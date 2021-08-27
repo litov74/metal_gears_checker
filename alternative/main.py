@@ -50,7 +50,7 @@ ax.set_xlabel("class")
 class_dict
 fig, ax = plt.subplots()
 sns.barplot(x=list(kind_class_dict.keys()), y=list(kind_class_dict.values()), ax=ax)
-ax.set_title("Number of classes included in each image");
+ax.set_title("Number of classes included in each image")
 ax.set_xlabel("number of classes in the image")
 kind_class_dict
 train_size_dict = defaultdict(int)
@@ -219,7 +219,7 @@ train2['e2'] = train['EncodedPixels'][1::4].values
 train2['e3'] = train['EncodedPixels'][2::4].values
 train2['e4'] = train['EncodedPixels'][3::4].values
 train2.reset_index(inplace=True, drop=True)
-train2.fillna('', inplace=True);
+train2.fillna('', inplace=True)
 train2['count'] = np.sum(train2.iloc[:, 1:] != '', axis=1).values
 train2.head()
 
@@ -323,14 +323,14 @@ def mask2pad(mask, pad=2):
 plt.figure(figsize=(13.5, 2.5))
 bar = plt.bar([1, 2, 3, 4], 100 * np.mean(train2.iloc[:, 1:5] != '', axis=0))
 plt.title('Percent Training Images with Defect', fontsize=16)
-plt.ylabel('Percent of Images');
+plt.ylabel('Percent of Images')
 plt.xlabel('Defect Type')
 plt.xticks([1, 2, 3, 4])
 for rect in bar:
     height = rect.get_height()
     plt.text(rect.get_x() + rect.get_width() / 2.0, height, '%.1f %%' % height,
              ha='center', va='bottom', fontsize=16)
-plt.ylim((0, 50));
+plt.ylim((0, 50))
 plt.show()
 
 filenames = {}
@@ -426,7 +426,7 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[dice_coef])
 # model.complie(optimizer = adam, loss = focal_tversky_loss, metrics = [tversky, dice_coef])
 
 # TRAIN AND VALIDATE MODEL
-idx = int(0.8 * len(train2));
+idx = int(0.8 * len(train2))
 print()
 train_batches = DataGenerator(train2.iloc[:idx], shuffle=True, preprocess=preprocess)
 valid_batches = DataGenerator(train2.iloc[idx:], preprocess=preprocess)
@@ -435,13 +435,13 @@ history = model.fit_generator(train_batches, validation_data=valid_batches, epoc
 plt.figure(figsize=(15, 5))
 plt.plot(range(history.epoch[-1] + 1), history.history['val_dice_coef'], label='val_dice_coef')
 plt.plot(range(history.epoch[-1] + 1), history.history['dice_coef'], label='trn_dice_coef')
-plt.title('Training Accuracy');
-plt.xlabel('Epoch');
-plt.ylabel('Dice_coef');
-plt.legend();
+plt.title('Training Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Dice_coef')
+plt.legend()
 plt.show()
 
-val_set = train2.iloc[idx:];
+val_set = train2.iloc[idx:]
 defects = list(val_set[val_set['e1'] != ''].sample(6).index)
 defects += list(val_set[val_set['e2'] != ''].sample(6).index)
 defects += list(val_set[val_set['e3'] != ''].sample(14).index)
@@ -530,7 +530,7 @@ for i, batch in enumerate(valid_batches):
             elif j == 3:  # magenta
                 img[msk == 1, 0] = 255
                 img[msk == 1, 2] = 255
-        extra = '';
+        extra = ''
         extra2 = ''
         if not three:
             extra = 'NO DEFECT 3'
@@ -561,7 +561,7 @@ for THRESHOLD in [0.1, 0.25, 0.50, 0.75, 0.9]:
     print('######################################')
     print('## Threshold =', THRESHOLD, 'displayed below ##')
     print('######################################')
-    correct = [[], [], [], []];
+    correct = [[], [], [], []]
     incorrect = [[], [], [], []]
     for i, f in enumerate(train2.iloc[idx:idx + len(preds)]['ImageId']):
         preds2 = preds[i].copy()
@@ -580,7 +580,7 @@ for THRESHOLD in [0.1, 0.25, 0.50, 0.75, 0.9]:
         plt.subplot(2, 2, j + 1)
         sns.distplot([x for x in correct[j] if x < limit], label='correct')
         sns.distplot([x for x in incorrect[j] if x < limit], label='incorrect')
-        plt.title('Defect ' + str(j + 1) + ' mask sizes with threshold = ' + str(THRESHOLD));
+        plt.title('Defect ' + str(j + 1) + ' mask sizes with threshold = ' + str(THRESHOLD))
         plt.legend()
     plt.show()
     for j in range(4):
